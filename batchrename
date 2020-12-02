@@ -1,0 +1,82 @@
+import os 
+import xlrd
+from tkinter import *
+from tkinter import messagebox
+from tkinter.ttk import Combobox
+from tkinter.filedialog import askopenfilename ,askdirectory
+
+def rename():
+    if entry1.get()=="":
+        messagebox.showinfo("提示窗口","请选择命名规则excel文件！")
+    elif entry2.get()=="":
+        messagebox.showinfo("提示窗口","请选择要重命名文件所在的文件夹！")
+    elif entry3.get()=="":
+        messagebox.showinfo("提示窗口","请选择保存重命名文件后的文件夹！")
+    elif comboxlist.get()=="":
+        messagebox.showinfo("提示窗口","请选择文件格式！")
+    else:
+        path=entry1.get()       
+        data = xlrd.open_workbook(path)
+        table = data.sheets()[0]
+        nrows = table.nrows 
+        print(nrows)
+        for i in range(0,nrows):
+            oldname = entry2.get()+"/"+str(table.cell_value(i,0))+comboxlist.get()
+            newname = entry3.get()+"/"+str(int(table.cell_value(i,1)))+comboxlist.get()
+            try:                               
+                os.rename(oldname,newname)
+            except FileNotFoundError:
+                ms= "Error: 系统找不到指定的文件" +oldname
+                messagebox.showinfo("提示窗口",ms)
+                continue      
+        messagebox.showinfo("提示窗口","重命名完毕！")
+    
+            
+    
+def upload_file():
+    selectFile = askopenfilename(title = '请选择excel文件！',filetypes = [('excel2007文件','*.xlsx'),('excel97文件','*.xls')])
+    entry1.delete(0, END)
+    entry1.insert(0, selectFile)
+
+def rename_file():
+    renamefolder = askdirectory()
+    entry2.delete(0, END)
+    entry2.insert(0, renamefolder)
+    
+def save_file():
+    savefolder = askdirectory()
+    entry3.delete(0, END)
+    entry3.insert(0, savefolder)
+
+wd=Tk()
+wd.title("批量修改文件名")
+frm = Frame(wd)
+frm.grid(padx='20', pady='30')
+
+btn1 = Button(frm, text='上传命名规则文件', command=upload_file)
+btn1.grid(row=0, column=1, ipadx='3', ipady='3', padx='10', pady='20')
+entry1 = Entry(frm, width='40')
+entry1.grid(row=0, column=0,ipadx='3', ipady='3', padx='10', pady='20')
+
+btn2 = Button(frm, text='需重命名文件的文件夹', command=rename_file)
+btn2.grid(row=1, column=1, ipadx='3', ipady='3', padx='10', pady='20')
+entry2 = Entry(frm, width='40')
+entry2.grid(row=1, column=0,ipadx='3', ipady='3', padx='10', pady='20')
+
+
+btn3 = Button(frm, text='保存重命名后的文件夹', command=save_file)
+btn3.grid(row=2, column=1, ipadx='3', ipady='3', padx='10', pady='20')
+entry3 = Entry(frm, width='40')
+entry3.grid(row=2, column=0,ipadx='3', ipady='3', padx='10', pady='20')
+
+var=StringVar()
+comboxlist=Combobox(frm,textvariable=var)
+comboxlist["values"] = (".xls",".xlsx",".docx",".doc",".ppt",".pptx",".jpg",".jpeg")
+comboxlist.grid(row=3, column=0, ipadx='3', ipady='3', padx='10', pady='20')
+label = Label(frm, text="请选择文件类型")
+label.grid(row=3, column=1,ipadx='3', ipady='3', padx='10', pady='20')
+
+btn = Button(frm, text=' 确定 ', command=rename)
+btn.grid(row=4, column=1, ipadx='5', ipady='5', padx='10', pady='20')
+
+wd.mainloop()
